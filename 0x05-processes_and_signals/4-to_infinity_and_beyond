@@ -5,4 +5,5 @@
 while true
 do
     echo "To infinity and beyond"
-    sle
+    sleep 2
+done    
