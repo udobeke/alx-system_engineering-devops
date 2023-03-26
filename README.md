@@ -1,1 +1,1 @@
-Task 0. Where am I?
+Attack is the best defense
