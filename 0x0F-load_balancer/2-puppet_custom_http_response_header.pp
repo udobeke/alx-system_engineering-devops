@@ -1,16 +1,20 @@
-# creating a custom HTTP header response with Puppet
+# Install Nginx web server
+class { 'nginx': }
 
-exec {'update':
-  command => '/usr/bin/apt-get update',
+# Define custom HTTP header
+$custom_header_name = 'X-Served-By'
+$custom_header_value = $::hostname
+
+# Add custom HTTP header to Nginx configuration
+file { '/etc/nginx/conf.d/custom-http-headers.conf':
+  content => "add_header $custom_header_name \"$custom_header_value\";",
+  mode    => '0644',
+  notify  => Service['nginx'],
 }
--> package {'nginx':
-  ensure => 'present',
-}
--> file_line { 'http_header':
-  path  => '/etc/nginx/nginx.conf',
-  match => 'http {',
-  line  => "http {\n\tadd_header X-Served-By \"${hostname}\";",
-}
--> exec {'run':
-  command => '/usr/sbin/service nginx restart',
+
+# Restart Nginx to apply changes
+service { 'nginx':
+  ensure     => 'running',
+  enable     => true,
+  hasrestart => true,
 }
