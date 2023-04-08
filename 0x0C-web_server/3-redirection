@@ -1,20 +1,12 @@
 #!/usr/bin/env bash
-# Create a new server block configuration file for the domain you want to redirect from
- 
-sudo apt update
-sudo apt install nginx -y
+# Create a new server block configuration file for the domain to redirect
+# The redirection must be a “301 Moved Permanently”
 
-
-echo "server {
-    listen 80;
-    listen [::]:80;
-    web_01 udobeke.tech;
-
-    location /redirect_me {
-        return 301 https://udobeke.tech/https://www.youtube.com;
-    }
-
-}" | sudo tee /etc/nginx/sites-available/www.youtube.com > /dev/null
-sudo ln -s /etc/nginx/sites-available/www.youtube.com /etc/nginx/sites-enabled/
-
+sudo apt-get -y update
+sudo apt-get -y upgrade
+sudo apt-get -y install nginx
+sudo service nginx start
+new_string="\\\trewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;"
+sudo sed -i "54i $new_string" /etc/nginx/sites-available/default
 sudo service nginx restart
+sudo service nginx reload
