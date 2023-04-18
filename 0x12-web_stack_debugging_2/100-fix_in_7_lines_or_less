@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # This script runs nginx as non-root user nginx
-sed -i -E 's/#user.+\;/user nginx;/' /etc/nginx/nginx.conf
-sed -i 's/80/8080/' /etc/nginx/sites-enabled/default
-chown -R nginx:nginx /etc/nginx/ /var/run/ /var/log/nginx
-chmod +rw /etc/nginx/nginx.conf
-su -l nginx -c 'service nginx start'
+sed -i "s/#user www-data/user nginx/" /etc/nginx/nginx.conf
+sed -i "s/80/8080/g" /etc/nginx/sites-available/default
+chmod 644 /etc/nginx/nginx.conf
+pkill apache2
+sudo -u nginx service nginx start
