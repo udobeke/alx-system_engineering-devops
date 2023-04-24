@@ -1,8 +1,7 @@
 #!/usr/bin/python3
 
-"""
-This script uses the `json` module to write the tasks data fetched from an external REST API.
-"""
+"""This script uses the `json` module to write the tasks data"""
+
 
 import json
 import sys
