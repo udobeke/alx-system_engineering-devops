@@ -15,7 +15,7 @@ def main():
 
     employee_id = sys.argv[1]
     base_url = "https://jsonplaceholder.typicode.com/users"
-    url = f"{base_url}/{employee_id}"
+    url = base_url + "/" + employee_id
 
     try:
         response = requests.get(url)
@@ -28,7 +28,7 @@ def main():
         print("An error occurred while accessing the API.")
         sys.exit(1)
 
-    todo_url = f"{url}/todos"
+    todo_url = url + "/todos"
 
     try:
         response = requests.get(todo_url)
@@ -45,13 +45,13 @@ def main():
     num_done_tasks = len(done_tasks)
     num_total_tasks = len(tasks)
 
-    print(f"Employee {employee_name} is done with tasks({num_done_tasks}/{num_total_tasks}):")
+    print("Employee {} is done with tasks({}/{}):".format(employee_name, num_done_tasks, num_total_tasks))
 
     for task in done_tasks:
-        print(f"\t{task.get('title')}")
+        print("\t{}".format(task.get('title')))
 
     # Export data in CSV format
-    csv_filename = f"{employee_id}.csv"
+    csv_filename = "{}.csv".format(employee_id)
     with open(csv_filename, 'w', newline='') as csvfile:
         fieldnames = ['USER_ID', 'USERNAME', 'TASK_COMPLETED_STATUS', 'TASK_TITLE']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -64,9 +64,8 @@ def main():
                 'TASK_TITLE': task['title']
             })
 
-    print(f"Data exported to {csv_filename} in CSV format.")
+    print("Data exported to {} in CSV format.".format(csv_filename))
 
 
 if __name__ == '__main__':
     main()
-
