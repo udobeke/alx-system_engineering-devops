@@ -1,10 +1,7 @@
 #!/usr/bin/python3
 
 """
-This Python script demonstrates how to filter tasks by username from a list of tasks
-and export the filtered tasks to a JSON file. The script uses the `json` module to 
-write the tasks data to a JSON file with the filename being the user ID, and the format
-of the JSON file follows the requirements provided.
+This script uses the `json` module to write the tasks data
 """
 
 import json
