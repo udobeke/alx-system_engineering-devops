@@ -10,38 +10,32 @@ import requests
 import csv
 
 
-# Function to filter tasks by username
-def filter_tasks_by_username(tasks, username):
-    filtered_tasks = []
-    for task in tasks:
-        if task["username"] == username:
-            filtered_tasks.append(task)
-    return filtered_tasks
+if __name__ == '__main__':
+    import requests
+    import json
+    from sys import argv
 
+    emp_id = argv[1]
+    file_name = emp_id + '.json'
+    total_todos = 0
+    done_todos = 0
+    done_todo_titles = []
 
-# Function to export tasks to JSON
-def export_tasks_to_json(user_id):
-    base_url = "https://jsonplaceholder.typicode.com/users"
-    url = f"{base_url}/{user_id}"
+    res = requests.get('https://jsonplaceholder.typicode.com/users/' +
+                       emp_id)
+    emp_username = res.json().get('username')
 
-    response = requests.get(url)
-    employee_name = response.json().get('username')
+    res = requests.get('https://jsonplaceholder.typicode.com/users/' +
+                       emp_id + '/todos')
+    emp_todos = res.json()
 
-    todo_url = f"{url}/todos"
-    response = requests.get(todo_url)
-    tasks = response.json()
+    records = {str(emp_id): []}
 
-    filtered_tasks = filter_tasks_by_username(tasks, employee_name)
-    data = {user_id: filtered_tasks}
-    filename = f"{user_id}.json"
-    with open(filename, "w") as json_file:
-        json.dump(data, json_file)
+    for item in emp_todos:
+        total_todos += 1
+        records[str(emp_id)].append({"task": item.get('title'),
+                                     "completed": item.get("completed"),
+                                     "username": emp_username})
 
-
-# Check if user ID is provided as a command line argument
-if len(sys.argv) > 1:
-    user_id = sys.argv[1]
-    export_tasks_to_json(user_id)
-    print(f"Tasks for User ID '{user_id}' exported to '{user_id}.json' in JSON format.")
-else:
-    print("Please provide a user ID as a command line argument.")
+    with open(file_name, 'w') as jsonfile:
+        json.dump(records, jsonfile)
