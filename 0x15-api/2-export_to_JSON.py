@@ -1,23 +1,13 @@
 #!/usr/bin/python3
 
 """
-This script uses the `json` module to write the tasks data
+This script uses the `json` module to write the tasks data fetched from an external REST API.
 """
 
 import json
 import sys
 import requests
 import csv
-
-
-# Sample data
-tasks = [
-    {"task": "Task 1", "completed": True, "username": "user1"},
-    {"task": "Task 2", "completed": False, "username": "user2"},
-    {"task": "Task 3", "completed": True, "username": "user1"},
-    {"task": "Task 4", "completed": False, "username": "user1"},
-    {"task": "Task 5", "completed": True, "username": "user2"}
-]
 
 
 # Function to filter tasks by username
@@ -30,10 +20,20 @@ def filter_tasks_by_username(tasks, username):
 
 
 # Function to export tasks to JSON
-def export_tasks_to_json(tasks, user_id):
-    filtered_tasks = filter_tasks_by_username(tasks, user_id)
+def export_tasks_to_json(user_id):
+    base_url = "https://jsonplaceholder.typicode.com/users"
+    url = f"{base_url}/{user_id}"
+
+    response = requests.get(url)
+    employee_name = response.json().get('username')
+
+    todo_url = f"{url}/todos"
+    response = requests.get(todo_url)
+    tasks = response.json()
+
+    filtered_tasks = filter_tasks_by_username(tasks, employee_name)
     data = {user_id: filtered_tasks}
-    filename = "{}.json".format(user_id)
+    filename = f"{user_id}.json"
     with open(filename, "w") as json_file:
         json.dump(data, json_file)
 
@@ -41,8 +41,7 @@ def export_tasks_to_json(tasks, user_id):
 # Check if user ID is provided as a command line argument
 if len(sys.argv) > 1:
     user_id = sys.argv[1]
-    export_tasks_to_json(tasks, user_id)
-    print("Tasks for User ID '{}' exported to '{}.json' in JSON format."
-          .format(user_id, user_id))
+    export_tasks_to_json(user_id)
+    print(f"Tasks for User ID '{user_id}' exported to '{user_id}.json' in JSON format.")
 else:
     print("Please provide a user ID as a command line argument.")
