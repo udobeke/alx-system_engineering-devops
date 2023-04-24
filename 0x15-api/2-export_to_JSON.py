@@ -6,6 +6,8 @@ This script uses the `json` module to write the tasks data
 
 import json
 import sys
+import requests
+import csv
 
 
 # Sample data
