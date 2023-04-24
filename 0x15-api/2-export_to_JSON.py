@@ -24,7 +24,6 @@ if __name__ == '__main__':
 
     res = requests.get('https://jsonplaceholder.typicode.com/users/' + 
                        emp_id + '/todos')
-
     emp_todos = res.json()
 
     records = {str(emp_id): []}
