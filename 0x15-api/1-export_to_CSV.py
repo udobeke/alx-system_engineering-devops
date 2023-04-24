@@ -1,66 +1,43 @@
 #!/usr/bin/python3
-"""Accessing a REST API for todo lists of employees and exporting data in CSV format"""
+
+"""cript to export data in the CSV format"""
 
 import csv
 import requests
 import sys
 
+if len(sys.argv) != 2:
+    print("Usage: python3 export_to_CSV.py USER_ID")
+    sys.exit(1)
 
-def main():
-    """Main function to fetch and display employee TODO list progress and export data in CSV"""
+user_id = sys.argv[1]
+url = "https://jsonplaceholder.typicode.com"
+user_url = url + "/users/" + user_id
+tasks_url = url + "/todos?userId=" + user_id
 
-    if len(sys.argv) != 2:
-        print("Usage: python3 todo_list.py EMPLOYEE_ID")
-        sys.exit(1)
+# Fetch user data
+user_data = requests.get(user_url).json()
+username = user_data["username"]
 
-    employee_id = sys.argv[1]
-    base_url = "https://jsonplaceholder.typicode.com/users"
-    url = "{}/{}".format(base_url, employee_id)
+# Fetch tasks data
+tasks_data = requests.get(tasks_url).json()
 
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        employee_name = response.json().get('name')
-    except requests.exceptions.RequestException as e:
-        print("An error occurred while accessing the API. Error: {}".format(e))
-        sys.exit(1)
+# Write data to CSV file
+file_name = user_id + ".csv"
+with open(file_name, "w", newline="") as csvfile:
+    fieldnames = ["USER_ID", "USERNAME", "TASK_COMPLETED_STATUS", "TASK_TITLE"]
+    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    writer.writeheader()
+    for task in tasks_data:
+        completed_status = "True" if task["completed"] else "False"
+        writer.writerow(
+            {
+                "USER_ID": user_id,
+                "USERNAME": username,
+                "TASK_COMPLETED_STATUS": completed_status,
+                "TASK_TITLE": task["title"],
+            }
+        )
 
-    todo_url = "{}/todos".format(url)
+print("Data has been exported to", file_name, "successfully!")
 
-    try:
-        response = requests.get(todo_url)
-        response.raise_for_status()
-        tasks = response.json()
-        done_tasks = [task for task in tasks if task['completed']]
-    except requests.exceptions.RequestException as e:
-        print("An error occurred while accessing the employee's TODO list. Error: {}".format(e))
-        sys.exit(1)
-
-    num_done_tasks = len(done_tasks)
-    num_total_tasks = len(tasks)
-
-    print("Employee {} is done with tasks({}/{}):".format(employee_name, num_done_tasks, num_total_tasks))
-
-    for task in done_tasks:
-        print("\t{}".format(task['title']))
-
-    # Export data in CSV format
-    csv_filename = "{}.csv".format(employee_id)
-    with open(csv_filename, 'w', newline='') as csvfile:
-        fieldnames = ['USER_ID', 'USERNAME', 'TASK_COMPLETED_STATUS', 'TASK_TITLE']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        for task in tasks:
-            writer.writerow({
-                'USER_ID': employee_id,
-                'USERNAME': employee_name,
-                'TASK_COMPLETED_STATUS': task['completed'],
-                'TASK_TITLE': task['title']
-            })
-
-    print("User ID and Username: OK")
-    print("Data exported to {} in CSV format.".format(csv_filename))
-
-
-if __name__ == '__main__':
-    main()
