@@ -40,6 +40,7 @@ def export_tasks_to_json(tasks, user_id):
 if len(sys.argv) > 1:
     user_id = sys.argv[1]
     export_tasks_to_json(tasks, user_id)
-    print("Tasks for User ID '{}' exported to '{}.json' in JSON format.".format(user_id, user_id))
+    print("Tasks for User ID '{}' exported to '{}.json' in JSON format."
+          .format(user_id, user_id))
 else:
     print("Please provide a user ID as a command line argument.")
