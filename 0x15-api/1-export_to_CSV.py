@@ -58,6 +58,7 @@ def main():
                 'TASK_TITLE': task['title']
             })
 
+    print("Number of tasks in CSV: {}".format(num_total_tasks))
     print("Data exported to {} in CSV format.".format(csv_filename))
 
 
