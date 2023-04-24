@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """Accessing a REST API for todo lists of employees and exporting data in CSV format"""
 
 import csv
@@ -15,7 +15,7 @@ def main():
 
     employee_id = sys.argv[1]
     base_url = "https://jsonplaceholder.typicode.com/users"
-    url = base_url + "/" + employee_id
+    url = "{}/{}".format(base_url, employee_id)
 
     try:
         response = requests.get(url)
@@ -28,7 +28,7 @@ def main():
         print("An error occurred while accessing the API.")
         sys.exit(1)
 
-    todo_url = url + "/todos"
+    todo_url = "{}/todos".format(url)
 
     try:
         response = requests.get(todo_url)
