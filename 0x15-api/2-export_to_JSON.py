@@ -22,7 +22,7 @@ if __name__ == '__main__':
     res = requests.get('https://jsonplaceholder.typicode.com/users/' + emp_id)
     emp_username = res.json().get('username')
 
-    res = requests.get('https://jsonplaceholder.typicode.com/users/' + 
+    res = requests.get('https://jsonplaceholder.typicode.com/users/' +
                        emp_id + '/todos')
     emp_todos = res.json()
 
