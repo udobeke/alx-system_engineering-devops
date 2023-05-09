@@ -1,42 +1,72 @@
 #!/usr/bin/python3
-
-"""a script to count words from a subreddit"""
+"""
+Function that queries the Reddit API and prints
+the top ten hot posts of a subreddit
+"""
+import re
 import requests
+import sys
 
 
-def count_words(subreddit, word_list, word_dict={}, after=None):
-    """a function to count words from a subreddit"""
+def add_title(dictionary, hot_posts):
+    """ Adds item into a list """
+    if len(hot_posts) == 0:
+        return
 
-    url = "https://www.reddit.com/r/{}/hot.json?limit=100".format(subreddit)
-    headers = {"User-Agent": 'My agent'}
-    params = {"after": after}
+    title = hot_posts[0]['data']['title'].split()
+    for word in title:
+        for key in dictionary.keys():
+            c = re.compile("^{}$".format(key), re.I)
+            if c.findall(word):
+                dictionary[key] += 1
+    hot_posts.pop(0)
+    add_title(dictionary, hot_posts)
 
-    response = requests.get(url, headers=headers, params=params, allow_redirects=False)
 
-    if response.status_code == 200:
-        posts = response.json()
+def recurse(subreddit, dictionary, after=None):
+    """ Queries to Reddit API """
+    u_agent = 'Mozilla/5.0'
+    headers = {
+        'User-Agent': u_agent
+    }
 
-        for post in posts['data']['children']:
-            title = post['data']['title'].lower().split()
+    params = {
+        'after': after
+    }
 
-            for word in word_list:
-                count = title.count(word.lower())
-                if count > 0:
-                    if word not in word_dict:
-                        word_dict[word] = count
-                    else:
-                        word_dict[word] += count
+    url = "https://www.reddit.com/r/{}/hot.json".format(subreddit)
+    res = requests.get(url,
+                       headers=headers,
+                       params=params,
+                       allow_redirects=False)
 
-        if posts['data']['after'] is not None:
-            count_words(subreddit, word_list, word_dict, posts['data']['after'])
+    if res.status_code != 200:
+        return None
 
-        else:
-            if len(word_dict) > 0:
-                for k, v in sorted(word_dict.items(), key=lambda x: (-x[1], x[0])):
-                    print("{}: {}".format(k, v))
+    dic = res.json()
+    hot_posts = dic['data']['children']
+    add_title(dictionary, hot_posts)
+    after = dic['data']['after']
+    if not after:
+        return
+    recurse(subreddit, dictionary, after=after)
 
-            else:
-                print()
 
+def count_words(subreddit, word_list):
+    """ Init function """
+    dictionary = {}
+
+    for word in word_list:
+        dictionary[word] = 0
+
+    recurse(subreddit, dictionary)
+
+    l = sorted(dictionary.items(), key=lambda kv: kv[1])
+    l.reverse()
+
+    if len(l) != 0:
+        for item in l:
+            if item[1] is not 0:
+                print("{}: {}".format(item[0], item[1]))
     else:
-        print()
+        print("")
